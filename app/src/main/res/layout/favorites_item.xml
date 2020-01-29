@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardUseCompatPadding="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardElevation="3dp"
+        app:cardCornerRadius="3dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <LinearLayout android:id="@+id/buttonPanel"
+                android:layout_width="40dp"
+                android:layout_height="50dp" >
+
+                <ImageView android:id="@+id/star"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+
+                    android:layout_marginTop="9dp"
+                    android:layout_marginStart="3dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_star_24dp"/>
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/buttonPanel">
+
+                <TextView android:id="@+id/item_word"
+                    android:layout_width="match_parent"
+                    android:layout_height="30sp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="5dp"
+
+                    android:text="dictionary"
+                    android:textColor="@color/colorAccent"
+                    android:textStyle="bold"
+                    android:autoSizeTextType="uniform"
+                    app:autoSizeMaxTextSize="22sp"
+                    app:autoSizeMinTextSize="18sp"
+                    android:textAppearance="?attr/textAppearanceListItem" />
+
+                <TextView android:id="@+id/item_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@+id/item_word"
+                    android:layout_alignStart="@id/item_word"
+                    android:layout_below="@id/item_word"
+
+                    android:text="noun"
+                    android:textColor="#0AC0C9"
+                    android:textSize="14sp"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/subtitleTextColor" />
+
+                <TextView android:id="@+id/item_definition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/item_type"
+                    android:layout_marginRight="5sp"
+                    android:layout_marginBottom="5sp"
+
+                    android:textStyle="italic"
+                    android:textSize="18sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="Lorem Ipsum is simply dummy text of the printing and typesetting industry" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</FrameLayout>

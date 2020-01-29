@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/word"
+            android:layout_width="match_parent"
+            android:layout_height="50sp"
+            android:layout_marginStart="3sp"
+            android:layout_marginTop="3sp"
+            android:layout_marginEnd="3sp"
+            android:layout_marginBottom="3sp"
+            android:gravity="center_vertical"
+
+            android:fontFamily="serif"
+            android:text="FunDict"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMaxTextSize="35sp"
+            app:autoSizeMinTextSize="18sp"
+            android:textAlignment="center"
+            android:textColor="@color/colorAccent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textStyle="bold" />
+
+        <LinearLayout android:id="@+id/circle_holder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/word"
+            android:layout_centerHorizontal="true">
+
+            <TextView
+                android:id="@+id/type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3sp"
+                android:background="@drawable/rounded_corners"
+                android:fontFamily="sans-serif-light"
+
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp"
+                android:text="Getting Started"
+                android:textAlignment="center"
+                android:textColor="#fff"
+                android:textSize="22sp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/buttonPanel"
+            android:layout_below="@+id/circle_holder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:visibility="visible">
+
+            <CheckBox android:id="@+id/fav_action"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:button="@drawable/checkbox" />
+
+            <ImageButton android:id="@+id/tts"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+
+                android:src="@drawable/ic_volume_up_black_24dp"
+                android:background="@null"/>
+
+            <ImageButton android:id="@+id/copy"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+
+                android:src="@drawable/ic_content_copy_black_24dp"
+                android:background="@null"/>
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/buttonPanel">
+
+            <TextView android:id="@+id/definition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10sp"
+                android:layout_marginRight="10sp"
+                android:layout_marginBottom="10sp"
+
+                android:text="@string/getting_started"
+                android:textSize="18sp"/>
+        </ScrollView>
+    </RelativeLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/ic_casino_inverted_24dp" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

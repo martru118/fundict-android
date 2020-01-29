@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"/>
+
+    <FrameLayout android:id="@+id/frag_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        android:layout_above="@id/navigation"
+        android:layout_below="@id/toolbar"
+        android:padding="1dp">
+    </FrameLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        android:layout_alignParentBottom="true"
+        android:elevation="10dp"
+
+        app:menu="@menu/nav_menu"
+        android:visibility="visible"
+        app:itemTextColor="@color/bottom_nav_color"
+        app:itemIconTint="@color/bottom_nav_color"/>
+
+    <com.miguelcatalan.materialsearchview.MaterialSearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search..."
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
+
+        app:searchSuggestionIcon="@drawable/ic_info_outline_black_24dp"
+        app:searchSuggestionBackground="@color/grey"
+        app:searchBackground="@color/colorPrimary"
+        app:searchBackIcon="@drawable/ic_arrow_back_white_24dp"
+        app:searchCloseIcon="@drawable/ic_close_white_24dp" />
+</RelativeLayout>
