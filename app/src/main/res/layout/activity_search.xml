@@ -33,7 +33,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.fragment.app.FragmentContainerView android:id="@+id/favorites"
-        android:name="com.martru118.fundict.ui.main.FavoritesFragment"
+        android:name="com.martru118.fundict.ui.search.FavoritesFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar"/>
