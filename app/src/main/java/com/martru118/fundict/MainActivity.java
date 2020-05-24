@@ -1,48 +1,41 @@
 package com.martru118.fundict;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.martru118.fundict.Helper.DatabaseOpenHelper;
 import com.martru118.fundict.Helper.ThemeHelper;
 import com.martru118.fundict.Model.Definition;
 import com.martru118.fundict.ui.main.DefinitionFragment;
-import com.martru118.fundict.ui.main.FavoritesFragment;
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
-import java.util.List;
-
+/*
+TODO~~~~~~~~~~~~~~~~~~~~~~~~~~
++ add searchview
++ change general text size (optional, save for last)
+ */
 public class MainActivity extends AppCompatActivity {
-    private List<Definition> result;
     private DatabaseOpenHelper db;
-    private FragmentRefreshListener refreshListener;
-    final Fragment definitionsFragment = new DefinitionFragment();
-    final Fragment favoritesFragment = new FavoritesFragment();
+    private int selection;
+    private final int requestFlag = 1;
+
     private ThemeHelper theme;
-
-    private MaterialSearchView mSearchView;
-    private MenuItem searchIcon;
-    private BottomNavigationView nav;
-
-    private List<String> previous;
-    private int position;
+    private DefinitionFragment definition = new DefinitionFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,141 +43,101 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initTheme();
 
-        //initialize database
+        //set up database
         db = new DatabaseOpenHelper(this);
         db.initTables();
-        updateHistory();
 
-        //set up navigation bar
-        nav = findViewById(R.id.navigation);
-        nav.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        this.setDefaultFragment(definitionsFragment);
+        //set up fragment
+        FragmentTransaction fragment = getSupportFragmentManager().beginTransaction();
+        fragment.replace(R.id.home, definition).commit();
 
         //set up toolbar
-        final Toolbar searchbar = findViewById(R.id.toolbar);
-        setSupportActionBar(searchbar);
-        searchbar.setTitle(R.string.app_name);
-        searchbar.setTitleTextColor(Color.parseColor("#ffffff"));
-        searchbar.setOverflowIcon(getDrawable(R.drawable.ic_more_vert_white_24dp));
-
-        //set up searchview
-        mSearchView = findViewById(R.id.search_view);
-        mSearchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
-            @Override
-            public void onSearchViewShown() {
-                nav.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onSearchViewClosed() {
-                nav.setVisibility(View.VISIBLE);
-            }
-        });
-        mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                result = db.findDefinition(query.toLowerCase());
-
-                if (result==null) {
-                    Toast.makeText(MainActivity.this, "Word not found", Toast.LENGTH_SHORT).show();
-                } else {
-                    //update search history
-                    mSearchView.closeSearch();
-                    db.addSearch(query.toLowerCase());
-                    updateHistory();
-
-                    //get most common definition
-                    getDefinition(result.get(0));
-                }
-
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (newText!=null && !newText.isEmpty())
-                    mSearchView.setSuggestions(db.getSuggestions(newText.toLowerCase()).toArray(new String[0]));
-
-                mSearchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        CharSequence query = (CharSequence) parent.getItemAtPosition(position);
-                        mSearchView.setQuery(query, true);
-                    }
-                });
-
-                return true;
-            }
-        });
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle(R.string.app_name);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
+        toolbar.setOverflowIcon(getDrawable(R.drawable.ic_more_vert_white_24dp));
     }
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-            switch (menuItem.getItemId()) {
-                case R.id.navigation_home:
-                    searchIcon.setVisible(true);
-                    replaceFragment(definitionsFragment);
-                    updateHistory();
-                    return true;
-
-                case R.id.navigation_bookmarks:
-                    searchIcon.setVisible(false);
-                    replaceFragment(favoritesFragment);
-                    return true;
-            }
-
-            return false;
-        }
-    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        searchIcon = menu.findItem(R.id.search_button);
-        mSearchView.setMenuItem(searchIcon);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.search_button:
+                Intent search = new Intent(MainActivity.this, SearchActivity.class);
+                startActivityForResult(search, requestFlag);
+                return true;
+
+            //toggle themes
             case R.id.themes:
                 int nightmodeFlags = this.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                nav.setSelectedItemId(R.id.navigation_home);
-
                 switch (nightmodeFlags) {
+                    //change to light theme
                     case Configuration.UI_MODE_NIGHT_YES:
-                        //change to light theme
                         theme.setNightModeState(false);
-                        initTheme();
                         makeToast("Light theme enabled");
                         break;
 
+                    //change to dark theme
                     case Configuration.UI_MODE_NIGHT_NO:
-                        //change to dark theme
                         theme.setNightModeState(true);
-                        initTheme();
                         makeToast("Dark theme enabled");
                         break;
                 }
+
+                restart();
                 return true;
 
-            case R.id.clear_history:
-                db.clearTable("history");
-                updateHistory();
-                makeToast("History cleared");
+            case R.id.clear_data:
+                final String[] options = {"Clear All", "Clear History", "Clear Favorites"};
+                AlertDialog.Builder clear_builder = new AlertDialog.Builder(this);
+                clear_builder.setTitle("Clear Data")
+                        .setSingleChoiceItems(options, 0, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                selection = which;
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (selection) {
+                                    case 0:
+                                        db.clearAll();
+                                        Toast.makeText(getApplicationContext(), "All data cleared", Toast.LENGTH_SHORT).show();
+                                        break;
+
+                                    case 1:
+                                        db.clearTable("history");
+                                        Toast.makeText(getApplicationContext(), "History cleared", Toast.LENGTH_SHORT).show();
+                                        break;
+
+                                    case 2:
+                                        db.clearTable("favorites");
+                                        Toast.makeText(getApplicationContext(), "Favorites cleared", Toast.LENGTH_SHORT).show();
+                                        break;
+                                }
+
+                                dialog.dismiss();
+                                restart();
+                            }
+                        })
+                        .create().show();
                 return true;
 
-            case R.id.clear_favorites:
-                db.clearTable("favorites");
-                makeToast("Bookmarks cleared");
-
-                //update list in fragment
-                if (getRefreshListener()!=null)
-                    getRefreshListener().onRefresh();
-
+            //display help dialog
+            case R.id.help_main:
+                AlertDialog.Builder help_builder = new AlertDialog.Builder(this);
+                help_builder.setTitle("Getting Started")
+                        .setItems(getResources().getStringArray(R.array.help_main), null)
+                        .setPositiveButton("OK", null)
+                        .create().show();
                 return true;
 
             default:
@@ -193,58 +146,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        //close searchview
-        if (mSearchView.isSearchOpen()) {
-            mSearchView.closeSearch();
-            return;
-        }
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        //iterate through past definitions
-        if (nav.getSelectedItemId()==R.id.navigation_home) {
-            if (position>0) {
-                position--;
-                result = db.findDefinition(previous.get(position));
-                getDefinition(result.get(0));
-            } else {
-                makeToast("End of history");
+        //change definition
+        if (requestCode==requestFlag) {
+            if (resultCode==RESULT_OK) {
+                String searchResult = data.getStringExtra("result");
+                definition.show(db.findDefinition(searchResult, false));
             }
-
-            return;
         }
-    }
-
-    //dynamically add fragments
-    private void setDefaultFragment(Fragment defaultFragment) {
-        this.replaceFragment(defaultFragment);
-    }
-    private void replaceFragment(Fragment destination) {
-        FragmentManager fm = this.getSupportFragmentManager();
-        FragmentTransaction transaction = fm.beginTransaction();
-        transaction.replace(R.id.frag_frame, destination);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
-
-    //refresh fragment list
-    public interface FragmentRefreshListener {
-        void onRefresh();
-    }
-    public FragmentRefreshListener getRefreshListener() {
-        return refreshListener;
-    }
-    public void setRefreshListener(FragmentRefreshListener frl) {
-        this.refreshListener = frl;
     }
 
     //set up app theme
     private void initTheme() {
         theme = new ThemeHelper(this);
-        if (theme.loadNightMode()) {
+        if (theme.loadNightMode())
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
+        else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
     }
 
     //set up toast messages
@@ -254,14 +174,9 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    private void getDefinition(Definition wordDef) {
-        DefinitionFragment definition = (DefinitionFragment)getSupportFragmentManager().findFragmentById(R.id.frag_frame);
-        definition.changeText(wordDef);
-    }
-
-    public void updateHistory() {
-        previous = db.getSearchHistory();
-        position = previous.size();
+    //restart activity
+    private void restart() {
+        finish();
+        startActivity(getIntent());
     }
 }
-

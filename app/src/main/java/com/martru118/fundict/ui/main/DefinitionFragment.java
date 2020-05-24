@@ -6,43 +6,50 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.fragment.app.Fragment;
 
 import android.speech.tts.TextToSpeech;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.martru118.fundict.Helper.DatabaseOpenHelper;
-import com.martru118.fundict.MainActivity;
 import com.martru118.fundict.Model.Definition;
 import com.martru118.fundict.R;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class DefinitionFragment extends Fragment {
     private TextToSpeech pronunciation;
     private TextView word, type, defn;
-    private LinearLayout buttonsPanel;
-    private CheckBox star;
+    private BottomAppBar buttonsPanel;
 
-    private List<Definition> result;
     private DatabaseOpenHelper db;
 
-    public DefinitionFragment() {
-    }
+    private List<String> previous = new ArrayList<>();
+    private int i_prev;
+    private boolean isFavorite;
+
+    public DefinitionFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = new DatabaseOpenHelper(getContext());
+        updateHistory();
+        i_prev = previous.size()-1;
+
+        initTTS();
     }
 
     @Nullable
@@ -52,108 +59,160 @@ public class DefinitionFragment extends Fragment {
         word = v.findViewById(R.id.word);
         type = v.findViewById(R.id.type);
         defn = v.findViewById(R.id.definition);
+        defn.scrollTo(0, defn.getTop());
 
-        buttonsPanel = v.findViewById(R.id.buttonPanel);
-        buttonsPanel.setVisibility(View.GONE);
-        star = v.findViewById(R.id.fav_action);
-
-        star.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String favWord, favType, favDefn;
-                favWord = word.getText().toString();
-                favType = type.getText().toString();
-                favDefn = defn.getText().toString();
-
-                if (!star.isChecked()) {
-                    db.clicktoRemove(favWord, favType, favDefn);
-                    makeToast("Removed from bookmarks");
-                } else {
-                    db.addtoFavorites(favWord, favType, favDefn);
-                    makeToast("Added to bookmarks");
-                }
-            }
-        });
-
-        //enable text to speech
-        ImageButton t2s = v.findViewById(R.id.tts);
-        pronunciation = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status!=TextToSpeech.ERROR) {
-                    pronunciation.setLanguage(Locale.US);
-                }
-            }
-        });
-        t2s.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CharSequence toSpeak = word.getText();
-                pronunciation.setSpeechRate(0.65f);
-                pronunciation.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
-            }
-        });
-
-        //copy to clipboard
-        ImageButton copy = v.findViewById(R.id.copy);
-        copy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ClipboardManager clipboard = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("word", word.getText());
-                clipboard.setPrimaryClip(clip);
-
-                makeToast("Word copied to clipboard");
-            }
-        });
+        //set app bar
+        buttonsPanel = v.findViewById(R.id.bottomAppBar);
+        setupButtonsPanel();
 
         //set floating action button
         FloatingActionButton fab = v.findViewById(R.id.fab);
+        TooltipCompat.setTooltipText(fab, "Random Definition");
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //generate random definition
-                String key = "generateRandom()";
-                buttonsPanel.setVisibility(View.VISIBLE);
-
-                //get definition
-                result = db.findDefinition(key);
-                Definition wordDef = result.get(0);
-                changeText(wordDef);
-
-                //update search history
-                db.addSearch(wordDef.getWord());
-                ((MainActivity)getActivity()).updateHistory();
+                Definition wordDef = db.findDefinition(null, true);
+                show(wordDef);
             }
         });
-        fab.setAlpha(0.65f);
 
+        changeText(db.findDefinition("welcome", false));
         return v;
     }
 
     @Override
-    public void onDestroyView() {
-        pronunciation.shutdown();
-        super.onDestroyView();
-    }
-
-    private void makeToast(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void changeText(Definition def) {
-        word.setText(def.getWord());
-        type.setText(def.getType());
-        defn.setText(def.getDefn());
-
-        buttonsPanel.setVisibility(View.VISIBLE);
+    public void onResume() {
+        super.onResume();
         checkFavorites();
+
+        //restart tts
+        if (pronunciation==null) {initTTS();}
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        //shutdown tts service
+        if (pronunciation != null) {
+            pronunciation.stop();
+            pronunciation.shutdown();
+        }
+    }
+
+    //set up tts engine
+    private void initTTS() {
+        pronunciation = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR)
+                    pronunciation.setLanguage(Locale.ENGLISH);
+                else
+                    makeToast("Cannot load Text-to-Speech service");
+            }
+        });
+    }
+
+    private void setupButtonsPanel() {
+        buttonsPanel.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    //back button
+                    case R.id.back:
+                        if (i_prev > -1) {
+                            Definition prev = db.findDefinition(previous.get(i_prev), false);
+                            changeText(prev);
+                            i_prev--;
+                        } else {
+                            makeToast("End of history");
+                        }
+                        return true;
+
+                    //star checkbox
+                    case R.id.fav_action:
+                        Definition wordDef = getDefinition();
+
+                        if (isFavorite) {
+                            db.removefromFavorites("word", wordDef.getWord());
+                            item.setIcon(R.drawable.ic_star_border_white_24dp);
+                            isFavorite = false;
+
+                            makeToast("Removed from favorites");
+                            return true;
+                        } else {
+                            db.addtoFavorites(wordDef);
+                            item.setIcon(R.drawable.ic_star_24dp);
+                            isFavorite = true;
+
+                            makeToast("Added to favorites");
+                            return true;
+                        }
+
+                    //text-to-speech
+                    case R.id.tts:
+                        CharSequence toSpeak = word.getText();
+                        pronunciation.setSpeechRate(0.65f);
+                        pronunciation.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
+                        return true;
+
+                    //copy to clipboard
+                    case R.id.copy:
+                        Definition copyDef = getDefinition();
+                        ClipboardManager clipboard = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("definition", String.format("%s (%s) — %s", copyDef.getWord(), copyDef.getType(), copyDef.getDefn()));
+                        clipboard.setPrimaryClip(clip);
+                        makeToast("Definition copied to clipboard");
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+    }
+
+    //default toast layout
+    private void makeToast(String message) {
+        Toast alert = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
+        alert.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 200);
+        alert.show();
+    }
+
+    private Definition getDefinition() {
+        Definition wordDef = new Definition();
+        wordDef.setWord(word.getText().toString());
+        wordDef.setType(type.getText().toString().replace("\n", "/"));
+        wordDef.setDefn(defn.getText().toString());
+        return wordDef;
+    }
+
+    private void updateHistory() {
+        previous = db.getHistory(false);
+        i_prev = previous.size()-2;
     }
 
     private void checkFavorites() {
-        if (db.isFavorite(word.getText().toString(), type.getText().toString(), defn.getText().toString()))
-            star.setChecked(true);
-        else
-            star.setChecked(false);
+        if (db.exists("favorites", getDefinition().getWord())) {
+            buttonsPanel.getMenu().getItem(1).setIcon(R.drawable.ic_star_24dp);
+            isFavorite = true;
+        } else {
+            buttonsPanel.getMenu().getItem(1).setIcon(R.drawable.ic_star_border_white_24dp);
+            isFavorite = false;
+        }
+    }
+
+    private void changeText(Definition def) {
+        word.setText(def.getWord());
+        type.setText(def.getType());
+        defn.setText(def.getDefn());
+        checkFavorites();
+    }
+
+    //show the definition
+    public void show(Definition current) {
+        changeText(current);
+        db.addtoHistory(current.getWord(), 0);
+        updateHistory();
     }
 }

@@ -10,18 +10,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.martru118.fundict.R;
 
-//cursor adapter for recycler view
-public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHolder> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHolder> implements SectionIndexer {
     private Context mContext;
     private Cursor mCursor;
+    private ArrayList<Integer> sectionPositions;
 
     public FavAdapter(Context context, Cursor cursor) {
         this.mContext = context;
         this.mCursor = cursor;
+    }
+
+    public Cursor getCursor() {
+        return mCursor;
     }
 
     @NonNull
@@ -29,7 +37,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
     public FavAdapter.FavoritesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View v = inflater.inflate(R.layout.favorites_item, parent, false);
-        return new FavAdapter.FavoritesViewHolder(v);
+        return new FavoritesViewHolder(v);
     }
 
     @Override
@@ -37,6 +45,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
         if (!mCursor.moveToPosition(position))
             return;     //exit if cursor does not exist
 
+        //initialize views
         String word_item = mCursor.getString(mCursor.getColumnIndex("word"));
         String type_item = mCursor.getString(mCursor.getColumnIndex("type"));
         String definition_item = mCursor.getString(mCursor.getColumnIndex("defn"));
@@ -48,7 +57,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
         holder.star.setImageResource(R.drawable.ic_star_24dp);
         holder.itemView.setTag(id);
 
-        //set default state for defn
+        //set default state for each definition
         holder.defn.setMaxLines(1);
         holder.defn.setEllipsize(TextUtils.TruncateAt.END);
     }
@@ -58,12 +67,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
         return mCursor.getCount();
     }
 
-    @Override
-    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-        mCursor.close();
-    }
-
+    //update cursor
     public void swapCursor(Cursor newCursor) {
         if (mCursor!=null)
             mCursor.close();
@@ -74,7 +78,43 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
             notifyDataSetChanged();
     }
 
-    public class FavoritesViewHolder extends RecyclerView.ViewHolder {
+    private List<String> asArray() {
+        List<String> results = new ArrayList<>();
+        for (mCursor.moveToFirst(); !mCursor.isAfterLast(); mCursor.moveToNext())
+            results.add(mCursor.getString(mCursor.getColumnIndex("word")));
+
+        return results;
+    }
+
+    //set up alphabet indexing
+    @Override
+    public Object[] getSections() {
+        List<String> sections = new ArrayList<>(26);
+        sectionPositions = new ArrayList<>(26);
+
+        for (int i = 0, size = asArray().size(); i < size; i++) {
+            String section = String.valueOf(asArray().get(i).charAt(0)).toUpperCase();
+            if (!sections.contains(section)) {
+                sections.add(section);
+                sectionPositions.add(i);
+            }
+        }
+
+        return sections.toArray(new String[0]);
+    }
+
+    @Override
+    public int getPositionForSection(int sectionIndex) {
+        return sectionPositions.get(sectionIndex);
+    }
+
+    @Override
+    public int getSectionForPosition(int position) {
+        return 0;
+    }
+
+
+    public static class FavoritesViewHolder extends RecyclerView.ViewHolder {
         private TextView word, type, defn;
         private ImageView star;
 
@@ -94,8 +134,8 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
                         defn.setMaxLines(1);
                         defn.setEllipsize(TextUtils.TruncateAt.END);
                     } else {
-                        defn.setMaxLines(Integer.MAX_VALUE);
                         defn.setEllipsize(null);
+                        defn.setMaxLines(Integer.MAX_VALUE);
                     }
                 }
             });

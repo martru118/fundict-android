@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="help_main">
+        <item>&#8226;\t Search for a word or tap on the dice to get a new definition.</item>
+        <item>&#8226;\t Press the back arrow to view recent definitions.</item>
+        <item>&#8226;\t When the copy button is pressed, the entire definition would be copied.</item>
+        <item>&#8226;\t Any deletions made cannot be undone.</item>
+    </string-array>
+
+    <string-array name="help_search">
+        <item>&#8226;\t Tap on a word to reveal its full definition.</item>
+        <item>&#8226;\t Press the search button to view search history and search suggestions.</item>
+        <item>&#8226;\t Swipe to remove a definition.</item>
+        <item>&#8226;\t Any deletions made cannot be undone.</item>
+    </string-array>
+</resources>

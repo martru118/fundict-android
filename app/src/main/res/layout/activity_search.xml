@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SearchActivity">
+
+    <com.google.android.material.appbar.AppBarLayout android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary" >
+
+        <com.paulrybitskyi.persistentsearchview.PersistentSearchView
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+
+            app:queryInputHint="@string/search_hint"
+            app:queryInputCursorColor="@color/colorAccent"
+            app:queryInputTextColor="?android:textColorPrimary"
+            app:queryInputHintColor="?android:textColorPrimary"
+            app:dividerColor="?attr/colorControlNormal"
+            app:suggestionSelectedTextColor="@color/colorAccent"
+            app:suggestionSearchSuggestionIconColor="?android:textColorPrimary"
+            app:suggestionTextColor="?android:textColorPrimary"
+
+            app:isProgressBarEnabled="true"
+            app:cardCornerRadius="5dp"
+            app:isVoiceInputButtonEnabled="false" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.fragment.app.FragmentContainerView android:id="@+id/favorites"
+        android:name="com.martru118.fundict.ui.main.FavoritesFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"/>
+</RelativeLayout>

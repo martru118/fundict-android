@@ -3,6 +3,10 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="grey">#dce1e3</color>
     <color name="white">#fff</color>
+
+    <color name="rectangleDark">#176d7a</color>
+    <color name="rectangleLight">#0AC0C9</color>
+
+    <color name="searchBarPrimaryColorDark">#303030</color>
 </resources>

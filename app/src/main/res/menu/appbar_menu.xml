@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/back"
+        android:icon="@drawable/ic_arrow_back_white_24dp"
+        android:title="Back"
+        app:showAsAction="always"/>
+    <item android:id="@+id/fav_action"
+        android:icon="@drawable/ic_star_border_white_24dp"
+        android:title="Star"
+        app:showAsAction="always"/>
+    <item android:id="@+id/tts"
+        android:icon="@drawable/ic_volume_up_white_24dp"
+        android:title="Read Aloud"
+        app:showAsAction="always"/>
+    <item android:id="@+id/copy"
+        android:icon="@drawable/ic_content_copy_white_24dp"
+        android:title="Copy Definition"
+        android:titleCondensed="Copy"
+        app:showAsAction="always"/>
+</menu>

@@ -9,58 +9,40 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.martru118.fundict.Helper.DatabaseOpenHelper;
-import com.martru118.fundict.MainActivity;
 import com.martru118.fundict.R;
+
+import in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView;
 
 public class FavoritesFragment extends Fragment {
     private DatabaseOpenHelper db;
     private FavAdapter adapter;
 
-    public FavoritesFragment() {
-    }
+    private IndexFastScrollRecyclerView favoritesList;
+    private TextView empty;
+
+    public FavoritesFragment() {}
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.frame_favorites, container, false);
         db = new DatabaseOpenHelper(getContext());
+        empty = v.findViewById(R.id.empty);
 
         //set up recycler view and its adapter
-        final RecyclerView favoritesList = v.findViewById(R.id.fav_list);
+        favoritesList = v.findViewById(R.id.fav_list);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
-        llm.setReverseLayout(true);
-        llm.setStackFromEnd(true);
-
         favoritesList.setLayoutManager(llm);
         adapter = new FavAdapter(getContext(), db.getAllFavorites());
         favoritesList.setAdapter(adapter);
-
-        ((MainActivity)getActivity()).setRefreshListener(new MainActivity.FragmentRefreshListener() {
-            @Override
-            public void onRefresh() {
-                adapter.swapCursor(db.getAllFavorites());
-            }
-        });
-
-        //scroll to recyclerview
-        if (adapter.getItemCount()>0) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    favoritesList.smoothScrollToPosition(adapter.getItemCount()-1);
-                }
-            }, 500);
-        } else {
-            Snackbar.make(v.findViewById(R.id.fragment), "You have no bookmarks", Snackbar.LENGTH_LONG).show();
-        }
+        favoritesList.scrollToPosition(0);
 
         //swipe to remove
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -72,15 +54,35 @@ public class FavoritesFragment extends Fragment {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 removeFromFavorites((long)viewHolder.itemView.getTag());
+                setCurrentView();
             }
         }).attachToRecyclerView(favoritesList);
 
+        setCurrentView();
         return v;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        adapter.getCursor().close();
+        db.close();
+    }
+
     private void removeFromFavorites(long id) {
-        db.swipetoRemove(id);
+        db.removefromFavorites("_id", String.valueOf(id));
         adapter.swapCursor(db.getAllFavorites());
-        Toast.makeText(getContext(), "Removed from bookmarks", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Removed from favorites", Toast.LENGTH_SHORT).show();
+    }
+
+    //determine whether to display message or recyclerview
+    private void setCurrentView() {
+        if (adapter.getItemCount()>0) {
+            empty.setVisibility(View.GONE);
+            favoritesList.setVisibility(View.VISIBLE);
+        } else {
+            favoritesList.setVisibility(View.GONE);
+            empty.setVisibility(View.VISIBLE);
+        }
     }
 }

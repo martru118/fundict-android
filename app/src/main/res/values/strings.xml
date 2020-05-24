@@ -1,10 +1,16 @@
 <resources>
     <string name="app_name">FunDict</string>
-    <string name="getting_started">
-        <li>Search for a word or tap on the dice to get a new definition.</li>\n
-        <li>Press the back key to view recent definitions</li>\n
-        <li>On the bookmarks page, tap on a word to expand its definition and swipe to remove a word.</li>\n
-        <li>Any deletions made cannot be undone.</li>\n
-        <li>Thank you for using FunDict! Hope you have fun learning new and interesting words!</li>
+
+    <string name="title">dictionary</string>
+    <string name="type">noun</string>
+    <string name="sampleID">29821</string>
+    <string name="empty">You have no favorites</string>
+    <string name="definition">
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+        Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+        It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+        It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     </string>
+
+    <string name="search_hint">Search…</string>
 </resources>
