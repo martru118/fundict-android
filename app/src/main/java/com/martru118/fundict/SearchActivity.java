@@ -2,7 +2,6 @@ package com.martru118.fundict;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -34,8 +33,9 @@ public class SearchActivity extends AppCompatActivity {
         mSearchBar.setOnSearchConfirmedListener(new OnSearchConfirmedListener() {
             @Override
             public void onSearchConfirmed(PersistentSearchView searchView, String query) {
-                if (db.exists("words", query))
-                    getResults(query);
+                String confirmQuery = query.toLowerCase();
+                if (db.exists("words", confirmQuery))
+                    getSearchResults(confirmQuery);
                 else
                     Toast.makeText(SearchActivity.this, "Word not found", Toast.LENGTH_SHORT).show();
             }
@@ -61,7 +61,7 @@ public class SearchActivity extends AppCompatActivity {
         mSearchBar.setOnSuggestionChangeListener(new OnSuggestionChangeListener() {
             @Override
             public void onSuggestionPicked(SuggestionItem suggestion) {
-                getResults(suggestion.getItemModel().getText());
+                getSearchResults(suggestion.getItemModel().getText());
             }
 
             @Override
@@ -81,15 +81,14 @@ public class SearchActivity extends AppCompatActivity {
             super.onBackPressed();
     }
 
-    private void getResults(String query) {
+    private void getSearchResults(String query) {
         Intent doSearch = new Intent();
         doSearch.putExtra("result", query);
-
-        db.addtoHistory(query, 1);
         setResult(RESULT_OK, doSearch);
         finish();
     }
 
+    //set searchbar color depending on theme
     private void initTheme() {
         ThemeHelper theme = new ThemeHelper(this);
         if (theme.loadNightMode())

@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.martru118.fundict.Model.Definition;
 
 import java.util.ArrayList;
@@ -58,6 +60,25 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
                 for (String defn : wordDefns) {defnBuilder.append(defn).append("\n\n");}
                 definition.setType(typeBuilder.substring(0, typeBuilder.length()-1));
                 definition.setDefn(defnBuilder.substring(0, defnBuilder.length()-2));
+
+                /*
+                StringBuilder typeBuilder = new StringBuilder();
+                StringBuilder defnBuilder = new StringBuilder();
+                SetMultimap<String, String> entries = HashMultimap.create();
+
+                //get all definitions and types of a word
+                for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext())
+                    entries.put(c.getString(c.getColumnIndex("type")), c.getString(c.getColumnIndex("defn")));
+
+                //build final definition
+                for (String typeKeys : entries.keySet()) {
+                    typeBuilder.append(typeKeys).append("\n");
+                    defnBuilder.append(entries.get(typeKeys).toString().replaceAll("(^\\[|\\]$)", "")).append("\n\n");
+                }
+
+                definition.setType(typeBuilder.substring(0, typeBuilder.length()-1));
+                definition.setDefn(defnBuilder.substring(0, defnBuilder.length()-2));
+                 */
             }
         } else {
             //no definitions found
@@ -71,7 +92,7 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
 
     public List<String> getSuggestions(String query) {
         SQLiteDatabase db = getReadableDatabase();
-        c = db.query(true,"words", new String[]{"word"},"word like ? and wlen>1", new String[]{query+"%"}, null, null, "word asc", "6");
+        c = db.query(true,"words", new String[]{"word"},"word like ? and wlen>2", new String[]{query+"%"}, null, null, "word asc", "6");
         List<String> results = new ArrayList<>();
 
         //show top suggestions based on query
@@ -117,6 +138,14 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
         ContentValues search = new ContentValues();
         search.put("recent", 0);
         db.update("history", search, "word=?", new String[]{query});
+        db.close();
+    }
+
+    public void clearSearchHistory() {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues search = new ContentValues();
+        search.put("recent", 0);
+        db.update("history", search, "recent=1", null);
         db.close();
     }
 

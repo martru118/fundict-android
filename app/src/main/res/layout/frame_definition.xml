@@ -42,10 +42,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/rounded_corners"
-                android:fontFamily="sans-serif-light"
-
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
+
+                android:fontFamily="sans-serif-light"
                 android:text="@string/type"
                 android:textAlignment="center"
                 android:textColor="#fff"
@@ -58,6 +58,7 @@
             android:layout_below="@id/holder_type"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
+            android:paddingBottom="20dp"
             android:scrollbars="vertical"
             android:fadeScrollbars="false"
 
@@ -84,6 +85,5 @@
         app:layout_anchor="@id/bottomAppBar"
         android:layout_margin="@dimen/fab_margin"
 
-        android:alpha="0.75"
         app:srcCompat="@drawable/ic_casino_inverted_24dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -72,11 +72,11 @@ public class DefinitionFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Definition wordDef = db.findDefinition(null, true);
-                show(wordDef);
+                show(wordDef, 0);
             }
         });
 
-        changeText(db.findDefinition("welcome", false));
+        setDefinition(db.findDefinition("welcome", false));
         return v;
     }
 
@@ -90,13 +90,14 @@ public class DefinitionFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onStop() {
+        super.onStop();
 
         //shutdown tts service
         if (pronunciation != null) {
             pronunciation.stop();
             pronunciation.shutdown();
+            pronunciation = null;
         }
     }
 
@@ -122,7 +123,7 @@ public class DefinitionFragment extends Fragment {
                     case R.id.back:
                         if (i_prev > -1) {
                             Definition prev = db.findDefinition(previous.get(i_prev), false);
-                            changeText(prev);
+                            setDefinition(prev);
                             i_prev--;
                         } else {
                             makeToast("End of history");
@@ -179,14 +180,6 @@ public class DefinitionFragment extends Fragment {
         alert.show();
     }
 
-    private Definition getDefinition() {
-        Definition wordDef = new Definition();
-        wordDef.setWord(word.getText().toString());
-        wordDef.setType(type.getText().toString().replace("\n", "/"));
-        wordDef.setDefn(defn.getText().toString());
-        return wordDef;
-    }
-
     private void updateHistory() {
         previous = db.getHistory(false);
         i_prev = previous.size()-2;
@@ -202,7 +195,15 @@ public class DefinitionFragment extends Fragment {
         }
     }
 
-    private void changeText(Definition def) {
+    private Definition getDefinition() {
+        Definition wordDef = new Definition();
+        wordDef.setWord(word.getText().toString());
+        wordDef.setType(type.getText().toString().replace("\n", "/"));
+        wordDef.setDefn(defn.getText().toString());
+        return wordDef;
+    }
+
+    private void setDefinition(Definition def) {
         word.setText(def.getWord());
         type.setText(def.getType());
         defn.setText(def.getDefn());
@@ -210,9 +211,9 @@ public class DefinitionFragment extends Fragment {
     }
 
     //show the definition
-    public void show(Definition current) {
-        changeText(current);
-        db.addtoHistory(current.getWord(), 0);
+    public void show(Definition current, int isSearch) {
+        setDefinition(current);
+        db.addtoHistory(current.getWord(), isSearch);
         updateHistory();
     }
 }

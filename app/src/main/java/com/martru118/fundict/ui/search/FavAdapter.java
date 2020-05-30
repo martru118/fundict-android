@@ -3,6 +3,8 @@ package com.martru118.fundict.ui.search;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.martru118.fundict.R;
 
@@ -136,6 +139,23 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
                     } else {
                         defn.setEllipsize(null);
                         defn.setMaxLines(Integer.MAX_VALUE);
+                    }
+                }
+            });
+
+            //copy definition
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (defn.getMaxLines()!=1) {
+                        ClipboardManager clipboard = (ClipboardManager)v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("favorites", String.format("%s (%s) — %s", word.getText(), type.getText(), defn.getText()));
+                        clipboard.setPrimaryClip(clip);
+
+                        Toast.makeText(v.getContext(), "Definition copied to clipboard", Toast.LENGTH_SHORT).show();
+                        return true;
+                    } else {
+                        return false;
                     }
                 }
             });

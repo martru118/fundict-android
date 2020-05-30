@@ -3,7 +3,6 @@ package com.martru118.fundict;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -11,7 +10,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.view.Gravity;
@@ -21,13 +19,11 @@ import android.widget.Toast;
 
 import com.martru118.fundict.Helper.DatabaseOpenHelper;
 import com.martru118.fundict.Helper.ThemeHelper;
-import com.martru118.fundict.Model.Definition;
 import com.martru118.fundict.ui.main.DefinitionFragment;
 
-/*
-TODO~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ add searchview
-+ change general text size (optional, save for last)
+/**~~~~~~~~~~~~~~~~~~~~~~TODO~~~~~~~~~~~~~~~~~~~~~~
+ * add text size slider (optional, save for last)
+ * change dictionary database
  */
 public class MainActivity extends AppCompatActivity {
     private DatabaseOpenHelper db;
@@ -94,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.clear_data:
-                final String[] options = {"Clear All", "Clear History", "Clear Favorites"};
+                final String[] options = {"Clear All", "Clear History", "Clear Search History", "Clear Favorites"};
                 AlertDialog.Builder clear_builder = new AlertDialog.Builder(this);
                 clear_builder.setTitle("Clear Data")
                         .setSingleChoiceItems(options, 0, new DialogInterface.OnClickListener() {
@@ -110,17 +106,22 @@ public class MainActivity extends AppCompatActivity {
                                 switch (selection) {
                                     case 0:
                                         db.clearAll();
-                                        Toast.makeText(getApplicationContext(), "All data cleared", Toast.LENGTH_SHORT).show();
+                                        makeToast("All data cleared");
                                         break;
 
                                     case 1:
                                         db.clearTable("history");
-                                        Toast.makeText(getApplicationContext(), "History cleared", Toast.LENGTH_SHORT).show();
+                                        makeToast("History cleared");
                                         break;
 
                                     case 2:
+                                        db.clearSearchHistory();
+                                        makeToast("Search History cleared");
+                                        break;
+
+                                    case 3:
                                         db.clearTable("favorites");
-                                        Toast.makeText(getApplicationContext(), "Favorites cleared", Toast.LENGTH_SHORT).show();
+                                        makeToast("Favorites cleared");
                                         break;
                                 }
 
@@ -153,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode==requestFlag) {
             if (resultCode==RESULT_OK) {
                 String searchResult = data.getStringExtra("result");
-                definition.show(db.findDefinition(searchResult, false));
+                definition.show(db.findDefinition(searchResult, false), 1);
             }
         }
     }
