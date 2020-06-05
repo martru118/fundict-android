@@ -20,6 +20,8 @@ public class SearchActivity extends AppCompatActivity {
     private PersistentSearchView mSearchBar;
     private DatabaseOpenHelper db;
 
+    private final String pattern = "^[a-zA-Z0-9 ]*$";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,36 +30,46 @@ public class SearchActivity extends AppCompatActivity {
 
         //set up searchview
         mSearchBar = findViewById(R.id.search_bar);
-        initTheme();
         mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(db.getHistory(true)), false);
+        initTheme();
+
         mSearchBar.setOnSearchConfirmedListener(new OnSearchConfirmedListener() {
             @Override
             public void onSearchConfirmed(PersistentSearchView searchView, String query) {
                 String confirmQuery = query.toLowerCase();
-                if (db.exists("words", confirmQuery))
-                    getSearchResults(confirmQuery);
-                else
-                    Toast.makeText(SearchActivity.this, "Word not found", Toast.LENGTH_SHORT).show();
+
+                if (query.matches(pattern)) {
+                    if (db.exists("words", confirmQuery))
+                        getSearchResults(confirmQuery);
+                    else
+                        Toast.makeText(SearchActivity.this, "Word not found", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(SearchActivity.this, "Word is invalid", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
         mSearchBar.setOnLeftBtnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //exit activity
                 if (!mSearchBar.isExpanded()) {
                     setResult(RESULT_CANCELED, new Intent());
                     finish();
                 }
             }
         });
+
         mSearchBar.setOnSearchQueryChangeListener(new OnSearchQueryChangeListener() {
             @Override
             public void onSearchQueryChanged(PersistentSearchView searchView, String oldQuery, String newQuery) {
-                if (newQuery!=null && newQuery.length()>0)
+                if (newQuery!=null && newQuery.length()>0 && newQuery.matches(pattern))
                     mSearchBar.setSuggestions(SuggestionCreationUtil.asRegularSearchSuggestions(db.getSuggestions(newQuery)));
                 else
                     mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(db.getHistory(true)));
             }
         });
+
         mSearchBar.setOnSuggestionChangeListener(new OnSuggestionChangeListener() {
             @Override
             public void onSuggestionPicked(SuggestionItem suggestion) {

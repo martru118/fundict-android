@@ -21,10 +21,6 @@ import com.martru118.fundict.Helper.DatabaseOpenHelper;
 import com.martru118.fundict.Helper.ThemeHelper;
 import com.martru118.fundict.ui.main.DefinitionFragment;
 
-/**~~~~~~~~~~~~~~~~~~~~~~TODO~~~~~~~~~~~~~~~~~~~~~~
- * add text size slider (optional, save for last)
- * change dictionary database
- */
 public class MainActivity extends AppCompatActivity {
     private DatabaseOpenHelper db;
     private int selection;

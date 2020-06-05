@@ -36,6 +36,7 @@ public class DefinitionFragment extends Fragment {
 
     private DatabaseOpenHelper db;
 
+    private final String defaultKey = "welcome";
     private List<String> previous = new ArrayList<>();
     private int i_prev;
     private boolean isFavorite;
@@ -76,7 +77,7 @@ public class DefinitionFragment extends Fragment {
             }
         });
 
-        setDefinition(db.findDefinition("welcome", false));
+        setDefinition(db.findDefinition(defaultKey, false));
         return v;
     }
 
@@ -91,19 +92,19 @@ public class DefinitionFragment extends Fragment {
 
     @Override
     public void onStop() {
-        super.onStop();
-
         //shutdown tts service
         if (pronunciation != null) {
             pronunciation.stop();
             pronunciation.shutdown();
             pronunciation = null;
         }
+
+        super.onStop();
     }
 
     //set up tts engine
     private void initTTS() {
-        pronunciation = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
+        pronunciation = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR)
@@ -163,6 +164,7 @@ public class DefinitionFragment extends Fragment {
                         ClipboardManager clipboard = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("definition", String.format("%s (%s) — %s", copyDef.getWord(), copyDef.getType(), copyDef.getDefn()));
                         clipboard.setPrimaryClip(clip);
+
                         makeToast("Definition copied to clipboard");
                         return true;
 

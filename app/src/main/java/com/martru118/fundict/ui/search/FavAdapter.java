@@ -143,20 +143,16 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
                 }
             });
 
-            //copy definition
+            //copy definition from favorites
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (defn.getMaxLines()!=1) {
-                        ClipboardManager clipboard = (ClipboardManager)v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText("favorites", String.format("%s (%s) — %s", word.getText(), type.getText(), defn.getText()));
-                        clipboard.setPrimaryClip(clip);
+                    ClipboardManager clipboard = (ClipboardManager)v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("favorites", String.format("%s (%s) — %s", word.getText(), type.getText(), defn.getText()));
+                    clipboard.setPrimaryClip(clip);
 
-                        Toast.makeText(v.getContext(), "Definition copied to clipboard", Toast.LENGTH_SHORT).show();
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    Toast.makeText(v.getContext(), "Definition copied to clipboard", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
             });
         }
