@@ -9,9 +9,10 @@ import android.database.sqlite.SQLiteDatabase;
 import com.martru118.fundict.Model.Definition;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLiteAssetHelper {
     private static final String dbName = "dictionary_big.db";
@@ -44,8 +45,8 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
 
                 StringBuilder typeBuilder = new StringBuilder();
                 StringBuilder defnBuilder = new StringBuilder();
-                Set<String> wordTypes = new HashSet<>();
-                Set<String> wordDefns = new HashSet<>();
+                Set<String> wordTypes = new TreeSet<>();
+                Set<String> wordDefns = new LinkedHashSet<>();
 
                 //get all definitions and types of a word
                 for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {

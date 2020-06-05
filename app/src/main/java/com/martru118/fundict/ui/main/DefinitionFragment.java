@@ -46,11 +46,10 @@ public class DefinitionFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         db = new DatabaseOpenHelper(getContext());
         updateHistory();
         i_prev = previous.size()-1;
-
-        initTTS();
     }
 
     @Nullable
@@ -86,33 +85,30 @@ public class DefinitionFragment extends Fragment {
         super.onResume();
         checkFavorites();
 
-        //restart tts
-        if (pronunciation==null) {initTTS();}
+        //start tts service
+        if (pronunciation==null) {
+            pronunciation = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    if (status != TextToSpeech.ERROR)
+                        pronunciation.setLanguage(Locale.ENGLISH);
+                    else
+                        makeToast("Cannot load Text-to-Speech service");
+                }
+            });
+        }
     }
 
     @Override
     public void onStop() {
+        super.onStop();
+
         //shutdown tts service
         if (pronunciation != null) {
             pronunciation.stop();
             pronunciation.shutdown();
             pronunciation = null;
         }
-
-        super.onStop();
-    }
-
-    //set up tts engine
-    private void initTTS() {
-        pronunciation = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status != TextToSpeech.ERROR)
-                    pronunciation.setLanguage(Locale.ENGLISH);
-                else
-                    makeToast("Cannot load Text-to-Speech service");
-            }
-        });
     }
 
     private void setupButtonsPanel() {
