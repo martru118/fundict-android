@@ -1,16 +1,16 @@
 <resources>
     <string name="app_name">FunDict</string>
-
     <string name="title">dictionary</string>
     <string name="type">noun</string>
     <string name="sampleID">29821</string>
     <string name="empty">You have no favorites</string>
+    <string name="search_hint">Search…</string>
+    <string name="bullet_point">&#8226;</string>
+
     <string name="definition">
         Lorem Ipsum is simply dummy text of the printing and typesetting industry.
         Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
         It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
         It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     </string>
-
-    <string name="search_hint">Search…</string>
 </resources>

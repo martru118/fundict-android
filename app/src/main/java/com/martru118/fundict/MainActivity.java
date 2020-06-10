@@ -3,6 +3,8 @@ package com.martru118.fundict;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -10,8 +12,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.text.Layout;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.LeadingMarginSpan;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(R.string.app_name);
-        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
         toolbar.setOverflowIcon(getDrawable(R.drawable.ic_more_vert_white_24dp));
     }
 
@@ -86,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.clear_data:
-                final String[] options = {"Clear All", "Clear History", "Clear Search History", "Clear Favorites"};
+                final String[] options = getResources().getStringArray(R.array.clear_options);
                 AlertDialog.Builder clear_builder = new AlertDialog.Builder(this);
                 clear_builder.setTitle("Clear Data")
                         .setSingleChoiceItems(options, 0, new DialogInterface.OnClickListener() {
@@ -130,9 +137,34 @@ public class MainActivity extends AppCompatActivity {
 
             //display help dialog
             case R.id.help_main:
+                final String[] help_items = getResources().getStringArray(R.array.help_guide);
+                CharSequence allText = "";
+
+                //create bulleted message
+                for (String message : help_items) {
+                    String text = message.trim() + ".";
+                    SpannableString spannableString = new SpannableString(text + "\n");
+                    spannableString.setSpan(new LeadingMarginSpan() {
+                        @Override
+                        public int getLeadingMargin(boolean first) {
+                            return getString(R.string.bullet_point).length() * 50;
+                        }
+                        @Override
+                        public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom, CharSequence text, int start, int end, boolean first, Layout layout) {
+                            if (first) {
+                                Paint.Style orgStyle = p.getStyle();
+                                p.setStyle(Paint.Style.FILL);
+                                c.drawText(getString(R.string.bullet_point) + " ", 0, bottom - p.descent(), p);
+                                p.setStyle(orgStyle);
+                            }
+                        }
+                    }, 0, text.length(), 0);
+
+                    allText = TextUtils.concat(allText, spannableString);
+                }
+
                 AlertDialog.Builder help_builder = new AlertDialog.Builder(this);
-                help_builder.setTitle("Getting Started")
-                        .setItems(getResources().getStringArray(R.array.help_main), null)
+                help_builder.setTitle("Getting Started").setMessage(allText.subSequence(0, allText.length()-1))
                         .setPositiveButton("OK", null)
                         .create().show();
                 return true;

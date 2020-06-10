@@ -1,6 +1,7 @@
 package com.martru118.fundict;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -104,8 +105,8 @@ public class SearchActivity extends AppCompatActivity {
     private void initTheme() {
         ThemeHelper theme = new ThemeHelper(this);
         if (theme.loadNightMode())
-            mSearchBar.setCardBackgroundColor(getResources().getColor(R.color.searchBarPrimaryColorDark));
+            mSearchBar.setCardBackgroundColor(ContextCompat.getColor(this, R.color.searchBarPrimaryColorDark));
         else
-            mSearchBar.setCardBackgroundColor(getResources().getColor(R.color.white));
+            mSearchBar.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white));
     }
 }
