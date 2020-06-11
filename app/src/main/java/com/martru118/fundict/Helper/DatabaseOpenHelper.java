@@ -58,7 +58,7 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
                 for (String type : wordTypes) {typeBuilder.append(type).append("\n");}
                 for (String defn : wordDefns) {defnBuilder.append(defn).append("\n\n");}
                 definition.setType(typeBuilder.substring(0, typeBuilder.length()-1));
-                definition.setDefn(defnBuilder.substring(0, defnBuilder.length()-2));
+                definition.setDefn(defnBuilder.toString());
             }
         } else {
             //no definitions found
@@ -93,7 +93,7 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
             c = db.query(true, "history", new String[]{"word"}, "recent=1", null, null, null, "_id desc", "6");
         } else {
             //get previous words
-            c = db.rawQuery("select distinct word from history", null);
+            c = db.rawQuery("select distinct word from history order by _id desc", null);
         }
 
         for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext())

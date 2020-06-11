@@ -28,6 +28,13 @@ import com.martru118.fundict.Helper.DatabaseOpenHelper;
 import com.martru118.fundict.Helper.ThemeHelper;
 import com.martru118.fundict.ui.main.DefinitionFragment;
 
+/**
+ * ~~~~~~~~~~~~~~~~~~TODO~~~~~~~~~~~~~~~~~~
+ * Update database to remove slashes from variant definitions.
+ * Investigate bug where the search query does not show up in history.
+ * Change text size (optional, save for last).
+ * Test app on devices from previous generations (save for last).
+ */
 public class MainActivity extends AppCompatActivity {
     private DatabaseOpenHelper db;
     private int selection;
@@ -67,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            //view search bar and favorites
             case R.id.search_button:
                 Intent search = new Intent(MainActivity.this, SearchActivity.class);
                 startActivityForResult(search, requestFlag);
@@ -92,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 restart();
                 return true;
 
+            //clear history and/or favorites data
             case R.id.clear_data:
                 final String[] options = getResources().getStringArray(R.array.clear_options);
                 AlertDialog.Builder clear_builder = new AlertDialog.Builder(this);
@@ -128,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                 }
 
+                                //refresh data
                                 dialog.dismiss();
                                 restart();
                             }
@@ -147,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     spannableString.setSpan(new LeadingMarginSpan() {
                         @Override
                         public int getLeadingMargin(boolean first) {
-                            return getString(R.string.bullet_point).length() * 50;
+                            return getString(R.string.bullet_point).length()*50;
                         }
                         @Override
                         public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top, int baseline, int bottom, CharSequence text, int start, int end, boolean first, Layout layout) {
@@ -178,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        //change definition
+        //change definition based on search query
         if (requestCode==requestFlag) {
             if (resultCode==RESULT_OK) {
                 String searchResult = data.getStringExtra("result");
@@ -187,7 +197,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //set up app theme
+    /**
+     * Sets up app theme based on SharedPreferences. Toggles between light and dark theme.
+     */
     private void initTheme() {
         theme = new ThemeHelper(this);
         if (theme.loadNightMode())
@@ -196,14 +208,19 @@ public class MainActivity extends AppCompatActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
-    //set up toast messages
+    /**
+     * Create default layout for toast alerts.
+     * @param message -- The message to be displayed in the toast.
+     */
     private void makeToast(String message) {
         Toast alert = Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT);
         alert.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 200);
         alert.show();
     }
 
-    //restart activity
+    /**
+     * Restarts activity when called.
+     */
     private void restart() {
         finish();
         startActivity(getIntent());

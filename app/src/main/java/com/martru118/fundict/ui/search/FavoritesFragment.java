@@ -69,13 +69,20 @@ public class FavoritesFragment extends Fragment {
         db.close();
     }
 
+    /**
+     * Removes a definition from favorites based on its ID in the database.
+     * @param id -- The ID of the definition in the favorites table.
+     */
     private void removeFromFavorites(long id) {
         db.removefromFavorites("_id", String.valueOf(id));
         adapter.swapCursor(db.getAllFavorites());
         Toast.makeText(getContext(), "Removed from favorites", Toast.LENGTH_SHORT).show();
     }
 
-    //determine whether to display message or recyclerview
+    /**
+     * Displays either a RecyclerView or a TextView based on the number of items in the adapter.
+     * If the adapter is empty, display the TextView; otherwise display the RecyclerView.
+     */
     private void setCurrentView() {
         if (adapter.getItemCount()>0) {
             empty.setVisibility(View.GONE);

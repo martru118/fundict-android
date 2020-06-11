@@ -94,6 +94,10 @@ public class SearchActivity extends AppCompatActivity {
             super.onBackPressed();
     }
 
+    /**
+     * Sends search query back to MainActivity.
+     * @param query -- The search query to be indexed.
+     */
     private void getSearchResults(String query) {
         Intent doSearch = new Intent();
         doSearch.putExtra("result", query);
@@ -101,7 +105,9 @@ public class SearchActivity extends AppCompatActivity {
         finish();
     }
 
-    //set searchbar color depending on theme
+    /**
+     * Set search bar color depending on app theme.
+     */
     private void initTheme() {
         ThemeHelper theme = new ThemeHelper(this);
         if (theme.loadNightMode())

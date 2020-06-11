@@ -16,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +28,7 @@ import com.martru118.fundict.Model.Definition;
 import com.martru118.fundict.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,6 +36,7 @@ public class DefinitionFragment extends Fragment {
     private TextToSpeech pronunciation;
     private TextView word, type, defn;
     private BottomAppBar buttonsPanel;
+    private ScrollView scrollView;
 
     private DatabaseOpenHelper db;
 
@@ -49,7 +53,7 @@ public class DefinitionFragment extends Fragment {
 
         db = new DatabaseOpenHelper(getContext());
         updateHistory();
-        i_prev = previous.size()-1;
+        i_prev = 0;
     }
 
     @Nullable
@@ -59,7 +63,8 @@ public class DefinitionFragment extends Fragment {
         word = v.findViewById(R.id.word);
         type = v.findViewById(R.id.type);
         defn = v.findViewById(R.id.definition);
-        defn.scrollTo(0, defn.getTop());
+
+        scrollView = v.findViewById(R.id.scrollable);
 
         //set app bar
         buttonsPanel = v.findViewById(R.id.bottomAppBar);
@@ -118,10 +123,10 @@ public class DefinitionFragment extends Fragment {
                 switch (item.getItemId()) {
                     //back button
                     case R.id.back:
-                        if (i_prev > -1) {
+                        if (i_prev < previous.size()) {
                             Definition prev = db.findDefinition(previous.get(i_prev), false);
                             setDefinition(prev);
-                            i_prev--;
+                            i_prev++;
                         } else {
                             makeToast("End of history");
                         }
@@ -180,7 +185,7 @@ public class DefinitionFragment extends Fragment {
 
     private void updateHistory() {
         previous = db.getHistory(false);
-        i_prev = previous.size()-2;
+        i_prev = 1;
     }
 
     private void checkFavorites() {
@@ -197,7 +202,7 @@ public class DefinitionFragment extends Fragment {
         Definition wordDef = new Definition();
         wordDef.setWord(word.getText().toString());
         wordDef.setType(type.getText().toString().replace("\n", "/"));
-        wordDef.setDefn(defn.getText().toString());
+        wordDef.setDefn(defn.getText().toString().substring(0, defn.length()-2));
         return wordDef;
     }
 
@@ -205,7 +210,15 @@ public class DefinitionFragment extends Fragment {
         word.setText(def.getWord());
         type.setText(def.getType());
         defn.setText(def.getDefn());
+
         checkFavorites();
+        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                //scroll to top once the layout is ready
+                scrollView.smoothScrollTo(0, 0);
+            }
+        });
     }
 
     //show the definition

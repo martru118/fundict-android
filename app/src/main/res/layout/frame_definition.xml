@@ -29,42 +29,53 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:textStyle="bold"/>
 
-        <LinearLayout android:id="@+id/holder_type"
-            android:layout_width="wrap_content"
+        <ScrollView android:id="@+id/scrollable"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/word"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="5dp"
-            android:gravity="center">
 
-            <TextView
-                android:id="@+id/type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/rounded_corners"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-
-                android:fontFamily="sans-serif-light"
-                android:text="@string/type"
-                android:textAlignment="center"
-                android:textColor="#fff"
-                android:textSize="22sp"/>
-        </LinearLayout>
-
-        <TextView android:id="@+id/definition"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/holder_type"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="20dp"
             android:scrollbars="vertical"
             android:fadeScrollbars="false"
+            android:fillViewport="true">
 
-            android:text="@string/definition"
-            android:textIsSelectable="true"
-            android:textSize="18sp"/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout android:id="@+id/holder_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_margin="5dp">
+
+                    <TextView
+                        android:id="@+id/type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_corners"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="3dp"
+
+                        android:fontFamily="sans-serif-light"
+                        android:text="@string/type"
+                        android:textAlignment="center"
+                        android:textColor="#fff"
+                        android:textSize="22sp"/>
+                </LinearLayout>
+
+                <TextView android:id="@+id/definition"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/holder_type"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+
+                    android:text="@string/definition"
+                    android:textIsSelectable="true"
+                    android:textSize="18sp"/>
+            </RelativeLayout>
+        </ScrollView>
     </RelativeLayout>
 
     <com.google.android.material.bottomappbar.BottomAppBar android:id="@+id/bottomAppBar"
