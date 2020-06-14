@@ -31,8 +31,18 @@ public class SearchActivity extends AppCompatActivity {
 
         //set up searchview
         mSearchBar = findViewById(R.id.search_bar);
-        mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(db.getHistory(true)), false);
         initTheme();
+
+        mSearchBar.setOnLeftBtnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //exit activity
+                if (!mSearchBar.isExpanded()) {
+                    setResult(RESULT_CANCELED, new Intent());
+                    finish();
+                }
+            }
+        });
 
         mSearchBar.setOnSearchConfirmedListener(new OnSearchConfirmedListener() {
             @Override
@@ -46,17 +56,6 @@ public class SearchActivity extends AppCompatActivity {
                         Toast.makeText(SearchActivity.this, "Word not found", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(SearchActivity.this, "Word is invalid", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        mSearchBar.setOnLeftBtnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //exit activity
-                if (!mSearchBar.isExpanded()) {
-                    setResult(RESULT_CANCELED, new Intent());
-                    finish();
                 }
             }
         });
@@ -80,7 +79,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onSuggestionRemoved(SuggestionItem suggestion) {
                 //update search history
-                db.removefromHistory(suggestion.getItemModel().getText());
+                db.removefromHistory(suggestion.getItemModel().getText(), false);
                 mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(db.getHistory(true)));
             }
         });
@@ -89,14 +88,21 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (mSearchBar.isExpanded())
-            mSearchBar.collapse();
+            mSearchBar.collapse();  //exit search
         else
-            super.onBackPressed();
+            super.onBackPressed();  //exit activity
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(db.getHistory(true)), false);
     }
 
     /**
-     * Sends search query back to MainActivity.
-     * @param query -- The search query to be indexed.
+     * Sends search query to MainActivity where its definition would be retrieved and displayed.
+     *
+     * @param query -- The search query to be sent to the MainActivity.
      */
     private void getSearchResults(String query) {
         Intent doSearch = new Intent();
@@ -110,9 +116,12 @@ public class SearchActivity extends AppCompatActivity {
      */
     private void initTheme() {
         ThemeHelper theme = new ThemeHelper(this);
-        if (theme.loadNightMode())
+        if (theme.loadNightMode()) {
+            //set night mode colors
             mSearchBar.setCardBackgroundColor(ContextCompat.getColor(this, R.color.searchBarPrimaryColorDark));
-        else
+        } else {
+            //set day mode colors
             mSearchBar.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white));
+        }
     }
 }

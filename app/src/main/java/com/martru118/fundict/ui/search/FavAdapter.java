@@ -21,6 +21,10 @@ import com.martru118.fundict.R;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Cursor adapter for recyclerview.
+ * Uses a SectionIndexer to organize recyclerview by letter.
+ */
 public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHolder> implements SectionIndexer {
     private Context mContext;
     private Cursor mCursor;
@@ -31,6 +35,9 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
         this.mCursor = cursor;
     }
 
+    /**
+     * @return The current cursor.
+     */
     public Cursor getCursor() {
         return mCursor;
     }
@@ -60,17 +67,25 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
         holder.star.setImageResource(R.drawable.ic_star_24dp);
         holder.itemView.setTag(id);
 
-        //set default state for each definition
+        //set default state for each recyclerview item
         holder.defn.setMaxLines(1);
         holder.defn.setEllipsize(TextUtils.TruncateAt.END);
     }
 
+    /**
+     * @return The number of items in the recyclerview.
+     */
     @Override
     public int getItemCount() {
         return mCursor.getCount();
     }
 
-    //update cursor
+    /**
+     * Updates the cursor when called.
+     * Replaces the old cursor with a new cursor.
+     *
+     * @param newCursor -- The replacement cursor.
+     */
     public void swapCursor(Cursor newCursor) {
         if (mCursor!=null)
             mCursor.close();
@@ -81,6 +96,9 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
             notifyDataSetChanged();
     }
 
+    /**
+     * @return A list of all words in favorites.
+     */
     private List<String> asArray() {
         List<String> results = new ArrayList<>();
         for (mCursor.moveToFirst(); !mCursor.isAfterLast(); mCursor.moveToNext())
@@ -89,7 +107,13 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
         return results;
     }
 
-    //set up alphabet indexing
+    /**
+     * Used to implement SectionIndexer.
+     * Retrieve a list of letters that each word in favorites starts with.
+     * This list would be used for creating alphabetical sections for the recyclerview.
+     *
+     * @return A list of letters that each word in favorites starts with.
+     */
     @Override
     public Object[] getSections() {
         List<String> sections = new ArrayList<>(26);
@@ -106,17 +130,33 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
         return sections.toArray(new String[0]);
     }
 
+    /**
+     * Used to implement SectionIndexer.
+     *
+     * @param sectionIndex -- The index of an alphabetical section.
+     * @return The current section the recyclerview is in.
+     */
     @Override
     public int getPositionForSection(int sectionIndex) {
         return sectionPositions.get(sectionIndex);
     }
 
+    /**
+     * Used to implement SectionIndexer.
+     *
+     * @param position -- The position of an item in a given section.
+     * @return The first position in that section.
+     */
     @Override
     public int getSectionForPosition(int position) {
         return 0;
     }
 
 
+    /**
+     * ViewHolder for recyclerview items.
+     * Also sets click listener for each recyclerview item.
+     */
     public static class FavoritesViewHolder extends RecyclerView.ViewHolder {
         private TextView word, type, defn;
         private ImageView star;

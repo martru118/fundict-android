@@ -65,12 +65,16 @@ public class FavoritesFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
+        //close remaining database access
         adapter.getCursor().close();
         db.close();
     }
 
     /**
      * Removes a definition from favorites based on its ID in the database.
+     * Each item in the recyclerview is assigned a numerical ID.
+     *
      * @param id -- The ID of the definition in the favorites table.
      */
     private void removeFromFavorites(long id) {

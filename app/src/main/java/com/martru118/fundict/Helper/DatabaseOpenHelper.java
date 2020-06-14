@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * This class accesses the database using SQLiteAssetHelper.
+ * All database CRUD operations are performed in this class.
+ */
 public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLiteAssetHelper {
     private static final String dbName = "dictionary_big.db";
     private static final int dbVersion = 1;
@@ -23,12 +27,21 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
         super(context, dbName, null, dbVersion);
     }
 
-    //dictionary engine
+    /**
+     * Finds the definition for a given word.
+     * The word can be specifically selected or randomly generated.
+     * The final definition is set by retrieving all possible types and definitions of that word
+     * and removing duplicate types and definitions.
+     *
+     * @param key -- The word to find the definition for.
+     * @param isRandom -- Checks if a word needs to be randomly generated. If so, key would be null.
+     * @return The final definition of a given word.
+     */
     public Definition findDefinition(String key, boolean isRandom) {
         SQLiteDatabase db = getReadableDatabase();
         Definition definition = new Definition();
 
-        if (isRandom) {
+        if (isRandom && key==null) {
             //generate random word
             c = db.rawQuery("select word from words where _rowid_=(abs(random())%(select (select max(_rowid_) from words)+1))", new String[]{});
             c.moveToFirst();
@@ -70,12 +83,18 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
         return definition;
     }
 
+    /**
+     * Retrieves search suggestions from SQLite database based on search query.
+     *
+     * @param query -- The string to base the search from.
+     * @return A list of words similar to the search query.
+     */
     public List<String> getSuggestions(String query) {
         SQLiteDatabase db = getReadableDatabase();
         c = db.query(true,"words", new String[]{"word"},"word like ? and wlen>2", new String[]{query+"%"}, null, null, "word asc", "6");
         List<String> results = new ArrayList<>();
 
-        //show top suggestions based on query
+        //retrieve top suggestions based on query
         for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext())
             results.add(c.getString(c.getColumnIndex("word")));
 
@@ -84,6 +103,12 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
         return results;
     }
 
+    /**
+     * Retrieves previous words from database.
+     *
+     * @param asRecent -- If true, retrieve previously searched words instead.
+     * @return A list of previous words.
+     */
     public List<String> getHistory(boolean asRecent) {
         SQLiteDatabase db = getReadableDatabase();
         List<String> results = new ArrayList<>();
@@ -104,36 +129,57 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
         return results;
     }
 
+    /**
+     * Adds a word to history along with its 'recent' value.
+     * The 'recent' value denotes if a word has been searched (0 = false; 1 = true).
+     *
+     * @param query -- The word to add to history.
+     * @param isRecent -- The 'recent' value.
+     */
     public void addtoHistory(String query, int isRecent) {
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues search = new ContentValues();
-        search.put("word", query);
-        search.put("recent", isRecent);
-        db.insert("history", null, search);
+        ContentValues entry = new ContentValues();
+        entry.put("word", query);
+        entry.put("recent", isRecent);
+        db.insert("history", null, entry);
         db.close();
     }
 
-    public void removefromHistory(String query) {
+    /**
+     * Removes a word from search history by changing its 'recent' value to 0.
+     *
+     * @param query -- The word to remove from history.
+     * @param clear -- If true, clear search history.
+     */
+    public void removefromHistory(String query, boolean clear) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues search = new ContentValues();
         search.put("recent", 0);
-        db.update("history", search, "word=?", new String[]{query});
+
+        if (clear && query==null) {
+            //clear search history
+            db.update("history", search, "recent=1", null);
+        } else {
+            //remove word from search history
+            db.update("history", search, "word=?", new String[]{query});
+        }
+
         db.close();
     }
 
-    public void clearSearchHistory() {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues search = new ContentValues();
-        search.put("recent", 0);
-        db.update("history", search, "recent=1", null);
-        db.close();
-    }
-
+    /**
+     * @return A cursor containing all of the favorite definitions from database.
+     */
     public Cursor getAllFavorites() {
         SQLiteDatabase db = getReadableDatabase();
         return db.rawQuery("select * from favorites order by word asc", null);
     }
 
+    /**
+     * Adds a definition to favorites.
+     *
+     * @param favDefn -- The definition to add to favorites.
+     */
     public void addtoFavorites(Definition favDefn) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues bookmark = new ContentValues();
@@ -144,12 +190,28 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
         db.close();
     }
 
+    /**
+     * Removes a specific definition from favorites.
+     * The definition is found by matching its ID to the ID of another definition in the same column.
+     * If the IDs match, then the definition is removed.
+     *
+     * @param column -- The column to search in.
+     * @param id -- The ID of a definition.
+     */
     public void removefromFavorites(String column, String id) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete("favorites", column+"=?", new String[]{id});
         db.close();
     }
 
+    /**
+     * Checks if a word exists in a table by counting the number of occurrences of a word.
+     * A word exists if it has more than 0 occurrences.
+     *
+     * @param table -- The table to search in.
+     * @param query -- The word to look for in the table.
+     * @return If the query exists in the table.
+     */
     public boolean exists(String table, String query) {
         SQLiteDatabase db = getReadableDatabase();
         long count = DatabaseUtils.queryNumEntries(db, table, "word like ?", new String[]{query});
@@ -157,17 +219,28 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
         return count>0;
     }
 
+    /**
+     * Removes all values in a given table.
+     *
+     * @param table -- The table to remove values from.
+     */
     public void clearTable(String table) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(table, null, null);
         db.close();
     }
 
+    /**
+     * Clears both History and Favorites tables when called.
+     */
     public void clearAll() {
         clearTable("history");
         clearTable("favorites");
     }
 
+    /**
+     * Creates tables in database on first run.
+     */
     public void initTables() {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("create table if not exists favorites (_id integer not null primary key autoincrement unique, word text not null, type text, defn text not null)");

@@ -31,7 +31,6 @@ import com.martru118.fundict.ui.main.DefinitionFragment;
 /**
  * ~~~~~~~~~~~~~~~~~~TODO~~~~~~~~~~~~~~~~~~
  * Update database to remove slashes from variant definitions.
- * Investigate bug where the search query does not show up in history.
  * Change text size (optional, save for last).
  * Test app on devices from previous generations (save for last).
  */
@@ -84,13 +83,13 @@ public class MainActivity extends AppCompatActivity {
             case R.id.themes:
                 int nightmodeFlags = this.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
                 switch (nightmodeFlags) {
-                    //change to light theme
+                    //change to day mode
                     case Configuration.UI_MODE_NIGHT_YES:
                         theme.setNightModeState(false);
                         makeToast("Light theme enabled");
                         break;
 
-                    //change to dark theme
+                    //change to night mode
                     case Configuration.UI_MODE_NIGHT_NO:
                         theme.setNightModeState(true);
                         makeToast("Dark theme enabled");
@@ -117,21 +116,25 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (selection) {
                                     case 0:
+                                        //clear all data
                                         db.clearAll();
                                         makeToast("All data cleared");
                                         break;
 
                                     case 1:
+                                        //clear history
                                         db.clearTable("history");
                                         makeToast("History cleared");
                                         break;
 
                                     case 2:
-                                        db.clearSearchHistory();
+                                        //clear search history
+                                        db.removefromHistory(null, true);
                                         makeToast("Search History cleared");
                                         break;
 
                                     case 3:
+                                        //clear favorites
                                         db.clearTable("favorites");
                                         makeToast("Favorites cleared");
                                         break;
@@ -202,17 +205,21 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initTheme() {
         theme = new ThemeHelper(this);
-        if (theme.loadNightMode())
+        if (theme.loadNightMode()) {
+            //set to night mode
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        else
+        } else {
+            //set to day mode
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 
     /**
      * Create default layout for toast alerts.
+     *
      * @param message -- The message to be displayed in the toast.
      */
-    private void makeToast(String message) {
+    public void makeToast(String message) {
         Toast alert = Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT);
         alert.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 200);
         alert.show();
