@@ -3,6 +3,7 @@ package com.martru118.fundict.ui.main;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -167,9 +168,18 @@ public class DefinitionFragment extends Fragment {
 
                     //text-to-speech
                     case R.id.tts:
-                        CharSequence toSpeak = word.getText();
-                        pronunciation.setSpeechRate(0.65f);
-                        pronunciation.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
+                        AudioManager audio = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
+                        int musicVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+                        //check if volume is muted
+                        if (musicVolume==0) {
+                            ((MainActivity)getActivity()).makeToast("Volume is muted");
+                        } else {
+                            //read word aloud if volume is not muted
+                            CharSequence toSpeak = word.getText();
+                            pronunciation.setSpeechRate(0.65f);
+                            pronunciation.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
+                        }
                         return true;
 
                     //copy to clipboard

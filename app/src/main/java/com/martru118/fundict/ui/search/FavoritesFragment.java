@@ -20,6 +20,11 @@ import com.martru118.fundict.R;
 
 import in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView;
 
+/**
+ * This class displays a recyclerview in a fragment.
+ * Data is fed with a custom cursor adapter.
+ * Fast scroller for recyclerview is implemented in the adapter.
+ */
 public class FavoritesFragment extends Fragment {
     private DatabaseOpenHelper db;
     private FavAdapter adapter;

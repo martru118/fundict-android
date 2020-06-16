@@ -17,6 +17,12 @@ import com.paulrybitskyi.persistentsearchview.listeners.OnSearchQueryChangeListe
 import com.paulrybitskyi.persistentsearchview.listeners.OnSuggestionChangeListener;
 import com.paulrybitskyi.persistentsearchview.utils.SuggestionCreationUtil;
 
+/**
+ * An activity containing a search bar and favorites.
+ * Search bar and search suggestions are initialized here.
+ * Favorites is shown as a fragment.
+ * This is the second activity.
+ */
 public class SearchActivity extends AppCompatActivity {
     private PersistentSearchView mSearchBar;
     private DatabaseOpenHelper db;

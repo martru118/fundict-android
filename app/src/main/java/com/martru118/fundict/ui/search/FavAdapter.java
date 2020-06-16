@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * Cursor adapter for recyclerview.
- * Uses a SectionIndexer to organize recyclerview by letter.
+ * Uses a SectionIndexer to organize recyclerview items by letter.
  */
 public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHolder> implements SectionIndexer {
     private Context mContext;

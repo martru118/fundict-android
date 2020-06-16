@@ -59,6 +59,7 @@
 
                         android:fontFamily="sans-serif-light"
                         android:text="@string/type"
+                        android:textIsSelectable="true"
                         android:textAlignment="center"
                         android:textColor="#fff"
                         android:textSize="22sp"/>

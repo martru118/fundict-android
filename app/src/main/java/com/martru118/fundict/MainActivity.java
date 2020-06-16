@@ -30,7 +30,6 @@ import com.martru118.fundict.ui.main.DefinitionFragment;
 
 /**
  * ~~~~~~~~~~~~~~~~~~TODO~~~~~~~~~~~~~~~~~~
- * Update database to remove slashes from variant definitions.
  * Change text size (optional, save for last).
  * Test app on devices from previous generations (save for last).
  */
