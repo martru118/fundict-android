@@ -105,7 +105,7 @@ public class DefinitionFragment extends Fragment {
                 public void onInit(int status) {
                     if (status != TextToSpeech.ERROR) {
                         pronunciation.setLanguage(Locale.US);
-                        pronunciation.setSpeechRate(0.6f);
+                        pronunciation.setSpeechRate(0.65f);
 
                         pronunciation.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                             @Override

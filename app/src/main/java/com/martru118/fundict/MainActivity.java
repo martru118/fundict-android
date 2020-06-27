@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
             //view search bar and favorites
             case R.id.search_button:
                 Intent search = new Intent(MainActivity.this, SearchActivity.class);
+                search.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivityForResult(search, requestFlag);
                 return true;
 
