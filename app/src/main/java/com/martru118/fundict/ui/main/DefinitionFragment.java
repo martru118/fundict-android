@@ -12,7 +12,7 @@ import androidx.appcompat.widget.TooltipCompat;
 import androidx.fragment.app.Fragment;
 
 import android.speech.tts.TextToSpeech;
-import android.view.Gravity;
+import android.speech.tts.UtteranceProgressListener;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -41,6 +40,9 @@ import java.util.Locale;
  */
 public class DefinitionFragment extends Fragment {
     private TextToSpeech pronunciation;
+    private AudioManager audio;
+    private String ttsID;
+
     private TextView word, type, defn;
     private BottomAppBar buttonsPanel;
     private ScrollView scrollView;
@@ -101,10 +103,35 @@ public class DefinitionFragment extends Fragment {
             pronunciation = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener() {
                 @Override
                 public void onInit(int status) {
-                    if (status != TextToSpeech.ERROR)
-                        pronunciation.setLanguage(Locale.ENGLISH);
-                    else
-                        ((MainActivity)getActivity()).makeToast("Cannot load Text-to-Speech service");
+                    if (status != TextToSpeech.ERROR) {
+                        pronunciation.setLanguage(Locale.US);
+                        pronunciation.setSpeechRate(0.6f);
+
+                        pronunciation.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                            @Override
+                            public void onStart(String utteranceId) {
+                                //request focus to tts service
+                                if (utteranceId.equals(ttsID))
+                                    audio.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+                            }
+
+                            @Override
+                            public void onDone(String utteranceId) {
+                                //remove focus from tts
+                                if (utteranceId.equals(ttsID))
+                                    audio.abandonAudioFocus(null);
+                            }
+
+                            @Override
+                            public void onError(String utteranceId) {
+
+                            }
+                        });
+
+
+                    } else {
+                        ((MainActivity) getActivity()).makeToast("Cannot load Text-to-Speech service");
+                    }
                 }
             });
         }
@@ -133,14 +160,14 @@ public class DefinitionFragment extends Fragment {
                     //back button
                     case R.id.back:
                         if (i_back < previous.size()) {
-                            //get previous word at index
+                            //get word at index
                             Definition prev = db.findDefinition(previous.get(i_back), false);
                             setDefinition(prev);
 
-                            //get the next previous word
+                            //get the next word in history
                             i_back++;
                         } else {
-                            ((MainActivity)getActivity()).makeToast("End of history");
+                            ((MainActivity) getActivity()).makeToast("End of history");
                         }
                         return true;
 
@@ -154,7 +181,7 @@ public class DefinitionFragment extends Fragment {
                             item.setIcon(R.drawable.ic_star_border_white_24dp);
                             isFavorite = false;
 
-                            ((MainActivity)getActivity()).makeToast("Removed from favorites");
+                            ((MainActivity) getActivity()).makeToast("Removed from favorites");
                             return true;
                         } else {
                             //add words to favorites
@@ -162,23 +189,23 @@ public class DefinitionFragment extends Fragment {
                             item.setIcon(R.drawable.ic_star_24dp);
                             isFavorite = true;
 
-                            ((MainActivity)getActivity()).makeToast("Added to favorites");
+                            ((MainActivity) getActivity()).makeToast("Added to favorites");
                             return true;
                         }
 
                     //text-to-speech
                     case R.id.tts:
-                        AudioManager audio = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
+                        audio = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
                         int musicVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
 
                         //check if volume is muted
-                        if (musicVolume==0) {
-                            ((MainActivity)getActivity()).makeToast("Volume is muted");
+                        if (musicVolume<=3) {
+                            ((MainActivity) getActivity()).makeToast("Volume is muted");
                         } else {
                             //read word aloud if volume is not muted
                             CharSequence toSpeak = word.getText();
-                            pronunciation.setSpeechRate(0.65f);
-                            pronunciation.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, null);
+                            ttsID = this.hashCode() + "";
+                            pronunciation.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, ttsID);
                         }
                         return true;
 
@@ -189,7 +216,7 @@ public class DefinitionFragment extends Fragment {
                         ClipData clip = ClipData.newPlainText("definition", String.format("%s (%s) — %s", copyDef.getWord(), copyDef.getType(), copyDef.getDefn()));
                         clipboard.setPrimaryClip(clip);
 
-                        ((MainActivity)getActivity()).makeToast("Definition copied to clipboard");
+                        ((MainActivity) getActivity()).makeToast("Definition copied to clipboard");
                         return true;
 
                     default:
@@ -214,11 +241,11 @@ public class DefinitionFragment extends Fragment {
     private void checkFavorites() {
         if (db.exists("favorites", getDefinition().getWord())) {
             //word is in favorites
-            buttonsPanel.getMenu().getItem(1).setIcon(R.drawable.ic_star_24dp);
+            buttonsPanel.getMenu().findItem(R.id.fav_action).setIcon(R.drawable.ic_star_24dp);
             isFavorite = true;
         } else {
             //word is not in favorites
-            buttonsPanel.getMenu().getItem(1).setIcon(R.drawable.ic_star_border_white_24dp);
+            buttonsPanel.getMenu().findItem(R.id.fav_action).setIcon(R.drawable.ic_star_border_white_24dp);
             isFavorite = false;
         }
     }
@@ -233,7 +260,7 @@ public class DefinitionFragment extends Fragment {
         Definition wordDef = new Definition();
         wordDef.setWord(word.getText().toString());
         wordDef.setType(type.getText().toString().replace("\n", "/"));
-        wordDef.setDefn(defn.getText().toString().substring(0, defn.length()-2));
+        wordDef.setDefn(defn.getText().toString().trim());
         return wordDef;
     }
 
@@ -250,13 +277,14 @@ public class DefinitionFragment extends Fragment {
         type.setText(def.getType());
         defn.setText(def.getDefn());
 
+        //set current state for star checkbox
         checkFavorites();
         scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 //scroll to top once the layout is ready
-                /*scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);*/
                 scrollView.smoothScrollTo(0, 0);
+                /*scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);*/
             }
         });
     }

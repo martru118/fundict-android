@@ -9,9 +9,10 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         app:cardUseCompatPadding="true"
         android:foreground="?android:attr/selectableItemBackground"
-        app:cardElevation="3dp"
+        app:cardElevation="4dp"
         app:cardCornerRadius="5dp">
 
         <RelativeLayout
@@ -49,7 +50,7 @@
                     android:textStyle="bold"
                     app:autoSizeTextType="uniform"
                     app:autoSizeStepGranularity="2sp"
-                    app:autoSizeMaxTextSize="25sp"
+                    app:autoSizeMaxTextSize="28sp"
                     app:autoSizeMinTextSize="18sp" />
 
                 <TextView android:id="@+id/item_type"
@@ -61,7 +62,7 @@
 
                     android:text="@string/type"
                     android:textColor="@color/rectangleLight"
-                    android:textSize="15sp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                     android:textAlignment="textStart" />
 
                 <TextView android:id="@+id/item_definition"
@@ -70,7 +71,7 @@
                     android:layout_below="@id/item_type"
 
                     android:textStyle="italic"
-                    android:textSize="18sp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@string/definition" />

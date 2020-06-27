@@ -17,6 +17,8 @@ import com.paulrybitskyi.persistentsearchview.listeners.OnSearchQueryChangeListe
 import com.paulrybitskyi.persistentsearchview.listeners.OnSuggestionChangeListener;
 import com.paulrybitskyi.persistentsearchview.utils.SuggestionCreationUtil;
 
+import java.util.List;
+
 /**
  * An activity containing a search bar and favorites.
  * Search bar and search suggestions are initialized here.
@@ -50,6 +52,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
+        //
         mSearchBar.setOnSearchConfirmedListener(new OnSearchConfirmedListener() {
             @Override
             public void onSearchConfirmed(PersistentSearchView searchView, String query) {
@@ -66,16 +69,23 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
+        //when input in searchbar has changed
         mSearchBar.setOnSearchQueryChangeListener(new OnSearchQueryChangeListener() {
             @Override
             public void onSearchQueryChanged(PersistentSearchView searchView, String oldQuery, String newQuery) {
-                if (newQuery!=null && newQuery.length()>0 && newQuery.matches(pattern))
-                    mSearchBar.setSuggestions(SuggestionCreationUtil.asRegularSearchSuggestions(db.getSuggestions(newQuery)));
-                else
-                    mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(db.getHistory(true)));
+                List<String> suggestions;
+
+                if (newQuery!=null && newQuery.length()>0 && newQuery.matches(pattern)) {
+                    suggestions = db.getSuggestions(newQuery);
+                    mSearchBar.setSuggestions(SuggestionCreationUtil.asRegularSearchSuggestions(suggestions));
+                } else {
+                    suggestions = db.getHistory(true);
+                    mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(suggestions));
+                }
             }
         });
 
+        //suggestion item actions
         mSearchBar.setOnSuggestionChangeListener(new OnSuggestionChangeListener() {
             @Override
             public void onSuggestionPicked(SuggestionItem suggestion) {
@@ -102,15 +112,24 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(db.getHistory(true)), false);
+
+        //retrieve search history
+        List<String> recent = db.getHistory(true);
+        mSearchBar.setSuggestions(SuggestionCreationUtil.asRecentSearchSuggestions(recent), false);
     }
 
     /**
-     * Sends search query to MainActivity where its definition would be retrieved and displayed.
+     * The process of retrieving a search result.
+     * First, collapse searchbar.
+     * Next, retrieve query from search bar input.
+     * Set search result as query.
+     * Finish activity.
      *
-     * @param query -- The search query to be sent to the MainActivity.
+     * @param query -- The current input in the search bar.
      */
     private void getSearchResults(String query) {
+        mSearchBar.collapse();
+
         Intent doSearch = new Intent();
         doSearch.putExtra("result", query);
         setResult(RESULT_OK, doSearch);

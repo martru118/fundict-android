@@ -88,7 +88,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
      */
     public void swapCursor(Cursor newCursor) {
         if (mCursor!=null)
-            mCursor.close();
+            mCursor.close();    //close old cursor
 
         mCursor = newCursor;
 
@@ -121,6 +121,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavoritesViewHol
 
         for (int i = 0, size = asArray().size(); i < size; i++) {
             String section = String.valueOf(asArray().get(i).charAt(0)).toUpperCase();
+
             if (!sections.contains(section)) {
                 sections.add(section);
                 sectionPositions.add(i);

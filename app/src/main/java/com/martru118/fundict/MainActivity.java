@@ -29,9 +29,9 @@ import com.martru118.fundict.Helper.ThemeHelper;
 import com.martru118.fundict.ui.main.DefinitionFragment;
 
 /**
- * ~~~~~~~~~~~~~~~~~~TODO~~~~~~~~~~~~~~~~~~
- * Change text size (optional, save for last).
- * Test app on devices from previous generations (save for last).
+ * MainActivity class houses the homepage.
+ * The homepage displays a fragment containing a definition.
+ * By default, the definition is for the word "welcome".
  */
 public class MainActivity extends AppCompatActivity {
     private DatabaseOpenHelper db;

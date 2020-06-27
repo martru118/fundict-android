@@ -10,7 +10,10 @@
     <com.google.android.material.appbar.AppBarLayout android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary" >
+        android:background="@color/colorPrimary"
+
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <com.paulrybitskyi.persistentsearchview.PersistentSearchView
             android:id="@+id/search_bar"
@@ -28,7 +31,7 @@
             app:suggestionTextColor="?android:textColorPrimary"
 
             app:shouldDimBehind="false"
-            app:cardCornerRadius="3dp"
+            app:cardCornerRadius="4dp"
             app:isVoiceInputButtonEnabled="false" />
     </com.google.android.material.appbar.AppBarLayout>
 

@@ -12,7 +12,7 @@
         app:showAsAction="always"/>
     <item android:id="@+id/tts"
         android:icon="@drawable/ic_volume_up_white_24dp"
-        android:title="Read Aloud"
+        android:title="Pronunciation"
         app:showAsAction="always"/>
     <item android:id="@+id/copy"
         android:icon="@drawable/ic_content_copy_white_24dp"

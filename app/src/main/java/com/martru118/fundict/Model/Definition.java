@@ -2,7 +2,7 @@ package com.martru118.fundict.Model;
 
 /**
  * Model class for definition.
- * A definition has a word, a type, and a defn (description).
+ * A definition has a word, a type, and a definition (defn).
  */
 public class Definition {
     private String word, type, defn;

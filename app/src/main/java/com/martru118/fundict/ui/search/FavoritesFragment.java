@@ -41,10 +41,12 @@ public class FavoritesFragment extends Fragment {
         db = new DatabaseOpenHelper(getContext());
         empty = v.findViewById(R.id.empty);
 
-        //set up recycler view and its adapter
+        //set up recyclerview
         favoritesList = v.findViewById(R.id.fav_list);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         favoritesList.setLayoutManager(llm);
+
+        //set up recyclerview adapter
         adapter = new FavAdapter(getContext(), db.getAllFavorites());
         favoritesList.setAdapter(adapter);
         favoritesList.scrollToPosition(0);
@@ -71,7 +73,7 @@ public class FavoritesFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
 
-        //close remaining database access
+        //close any remaining database access
         adapter.getCursor().close();
         db.close();
     }

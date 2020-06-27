@@ -23,7 +23,7 @@
             android:textIsSelectable="true"
             app:autoSizeTextType="uniform"
             app:autoSizeStepGranularity="2sp"
-            app:autoSizeMaxTextSize="35sp"
+            app:autoSizeMaxTextSize="38sp"
             app:autoSizeMinTextSize="18sp"
             android:textColor="@color/colorAccent"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
@@ -56,13 +56,13 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
                         android:paddingBottom="3dp"
+                        android:gravity="center"
 
                         android:fontFamily="sans-serif-light"
                         android:text="@string/type"
-                        android:textIsSelectable="true"
                         android:textAlignment="center"
                         android:textColor="#fff"
-                        android:textSize="22sp"/>
+                        android:textAppearance="?android:attr/textAppearanceLarge"/>
                 </LinearLayout>
 
                 <TextView android:id="@+id/definition"
@@ -74,7 +74,7 @@
 
                     android:text="@string/definition"
                     android:textIsSelectable="true"
-                    android:textSize="18sp"/>
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
             </RelativeLayout>
         </ScrollView>
     </RelativeLayout>

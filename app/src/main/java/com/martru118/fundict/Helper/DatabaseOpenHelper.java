@@ -12,11 +12,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * This class accesses the database using SQLiteAssetHelper.
- * All database CRUD operations are performed in this class.
+ * All database operations are performed in this class.
  */
 public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLiteAssetHelper {
     private static final String dbName = "dictionary_big.db";
@@ -43,7 +42,7 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
 
         if (isRandom && key==null) {
             //generate random word
-            c = db.rawQuery("select word from words where _rowid_=(abs(random())%(select (select max(_rowid_) from words)+1))", new String[]{});
+            c = db.rawQuery("select word from words where _id=(abs(random())%(select (select max(_id) from words)+1))", new String[]{});
             c.moveToFirst();
             key = c.getString(c.getColumnIndex("word"));
         }
@@ -56,9 +55,13 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
                 //set individual definition
                 definition.setWord(c.getString(c.getColumnIndex("word")));
 
+                //stringbuilder used for adding type and defn to definition
                 StringBuilder typeBuilder = new StringBuilder();
                 StringBuilder defnBuilder = new StringBuilder();
-                Set<String> wordTypes = new TreeSet<>();
+                String allTypes, allDefns;
+
+                //create sets storing types and definitions
+                Set<String> wordTypes = new LinkedHashSet<>();
                 Set<String> wordDefns = new LinkedHashSet<>();
 
                 //get all definitions and types of a word
@@ -70,8 +73,12 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
                 //build final definition
                 for (String type : wordTypes) {typeBuilder.append(type).append("\n");}
                 for (String defn : wordDefns) {defnBuilder.append(defn).append("\n\n");}
-                definition.setType(typeBuilder.substring(0, typeBuilder.length()-1));
-                definition.setDefn(defnBuilder.toString());
+
+                //set final definition
+                allTypes = typeBuilder.substring(0, typeBuilder.length()-1);
+                allDefns = defnBuilder.toString();
+                definition.setType(allTypes);
+                definition.setDefn(allDefns);
             }
         } else {
             //no definitions found
@@ -91,7 +98,7 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
      */
     public List<String> getSuggestions(String query) {
         SQLiteDatabase db = getReadableDatabase();
-        c = db.query(true,"words", new String[]{"word"},"word like ? and wlen>2", new String[]{query+"%"}, null, null, "word asc", "6");
+        c = db.query(true,"words", new String[]{"word"},"word like ? and wlen>2", new String[]{query+"%"}, null, null, "_id asc, word asc", "6");
         List<String> results = new ArrayList<>();
 
         //retrieve top suggestions based on query
@@ -147,6 +154,7 @@ public class DatabaseOpenHelper extends com.readystatesoftware.sqliteasset.SQLit
 
     /**
      * Removes a word from search history by changing its 'recent' value to 0.
+     * 0 means the word has not been searched.
      *
      * @param query -- The word to remove from history.
      * @param clear -- If true, clear search history.

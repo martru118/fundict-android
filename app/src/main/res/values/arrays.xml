@@ -9,7 +9,7 @@
 
     <string-array name="help_guide">
         <item>Search for a word or tap on the dice to get a new definition</item>
-        <item>On the Welcome page, press the back arrow to view your previous definitions</item>
+        <item>Press the back arrow to view previous definitions</item>
         <item>On the Favorites page, swipe to remove a definition</item>
         <item>On the Favorites page, tap and hold a definition to copy it to clipboard</item>
         <item>Any deletions made cannot be undone</item>
