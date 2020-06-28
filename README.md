@@ -1,5 +1,7 @@
 # FunDict
 
+![](app/src/main/ic_launcher-web.png)
+
 An offline English dictionary app for Android. Uses an SQLite database to retrieve dictionary definitions.
 
 Definitions are taken from the Online Plain Text English Dictionary, Project Gutenberg, and the 1903 edition of Webster's Unabriged Dictionary.
