@@ -6,12 +6,15 @@ An offline English dictionary app for Android. Uses an SQLite database to retrie
 
 Definitions are taken from the Online Plain Text English Dictionary, Project Gutenberg, and the 1903 edition of Webster's Unabriged Dictionary.
 
+**Get it on Google Play:**
+
 ## Features
 - 100k+ definitions with multiple definitions and types when available
 - Random dictionary definition generator
 - Search and highlight results
-- Preview and expand definitions in favorites
+- Pronunciation of a word (text-to-speech)
 - Copy definition to clipboard
+- Preview and expand definitions in favorites
 - Alphabetical scrollbar to quickly find a definition in favorites
 - Toggle between light and dark themes
 
