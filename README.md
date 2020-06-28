@@ -1,4 +1,4 @@
-# FunDict for Android
+# FunDict
 
 An offline English dictionary for Android. Uses an SQLite database to retrieve dictionary definitions.
 
