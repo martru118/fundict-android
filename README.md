@@ -14,5 +14,12 @@ Uses an SQLite database to retrieve dictionary definitions. Definitions are take
 - Alphabetical scrollbar to quickly find a definition in favorites
 - Toggle between light and dark themes
 
+## Getting Started
+- Search for a word or tap on the dice to get a new definition
+- Favorites can be found on the search page
+- Tap the back arrow on the menu bar to view previous definitions
+- Tap and hold on a definition to copy it from favorites
+- Any deletions made cannot be undone
+
 ## Acknowledgements
 The dictionary database used in this app is a slightly modified version of the one [provided by willichan of the AutoIt Forums](https://www.autoitscript.com/forum/files/file/419-dictionary_bigdb/).
