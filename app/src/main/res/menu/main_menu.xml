@@ -4,7 +4,7 @@
 
     <item android:id="@+id/search_button"
         android:icon="@drawable/ic_search_white_24dp"
-        android:title="@string/search_hint"
+        android:title="Favorites"
         app:showAsAction="always"/>
     <item android:id="@+id/themes"
         android:title="Change Theme"/>
