@@ -1,10 +1,11 @@
 # FunDict
 
+**This project is no longer maintained.**
+[**Download the final release here!**](https://github.com/martru118/fundict-android/blob/master/app/release/app-release.apk?raw=true)
+
 An offline English dictionary for Android with a random word generator. Contains over 100k+ words with multiple definitions and types when available. 
 
 Uses an SQLite database to retrieve dictionary definitions. Definitions are taken from the Online Plain Text English Dictionary, Project Gutenberg, and the 1903 edition of Webster's Unabriged Dictionary.
-
-[![Get it on Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=com.martru118.fundict)
 
 ## Features
 - Search and highlight results
